@@ -76,12 +76,17 @@ class Chunk:
 		self.dst = int(array[2].strip("D"))
 		self.srcs = []
 
-	def _get_pos(self):
+	def _get_phare_pos(self):
 		#TODO:修飾関係からも句を推定する
-	
-		
-		return 
-	
+		#自立である品詞から句の品詞を推定	
+		POS1toPOS = dict[(m.pos1, m.pos) for m in self.morphs]
+		if "自立" in POS1toPOS:
+			return dict["自立"]
+		else:
+			if WordClass.noun in [m.pos for m in self.morphs]:
+				return WordClass.noun
+			else: return WordClass.adv
+
 	def tostring(self):
 		string = "%s:%d %s:%s\n%s" % (
 				"係先Index", self.dst,
@@ -116,6 +121,7 @@ class Morph:
 	surface:表層（文字列）
 	pos:品詞（配列にて格納）
 	pos1:品詞1
+	pos2:品詞2
 	base:原型（文字列）
 	"""
 	def __init__(self, str):
@@ -126,6 +132,8 @@ class Morph:
 		self.pos = morphs[0]
 		self.base = morphs[6]
 		self.pos1 = morphs[1]
+		self.pos2 = morphs[2]
+
 	def tostring(self):
 		str = " ".join([self.surface,self.pos,self.pos1,self.base])
 		return str
