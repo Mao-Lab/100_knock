@@ -33,52 +33,56 @@ def dprint (str):
 #=========================================#
 
 # global variable(Configuration)
-path_data	= "../Sample/work/"			#元データ
-lat_prectx	= "../Sample/work/prectx/"	#解析済み前文脈
-lat_pstctx	= "../Sample/work/postctx/"	#解析済み後文脈
+path_data	= "./SMLdata/"			#元データ
+vecTable = {}		#ベクタテーブル
 
-#Extract feature from Chunk Class for SML
-def extract_last_noun(chunks):
-	return [ c for c in chunks
-			if c.pos == wcls.noun][-1].phrase()
-def extract_first_verb(chunk):
-	return [ c for c in chunks 
-			if c.pos == wcls.verb][0].phrase()
+#
+def gen_vector_table(filelist):
+	nounSet = set()
+	verbSet = set()
+	for fname in filelist:
+		for line in open(fname):
+			cols = line.strip().split("\t")
+			if len(cols) < 2 : continue
+			if len(cols) == 3:
+				nounSet.add(cols[1])
+				verbSet.add(cols[2])
+			else:
+				nounSet.add(cols[1])
 
-#Create the List of Word Freqency for the data
+	global vecTable
+	for idx,word in enumerate(nounSet.union(verbSet)):
+		vecTable[word] = idx
+
+	return len(vecTable)
 
 #Generate data set()
 # X : vector 
 # Y : vector values
 def gen_dataset(fname):
-	path =  fname
-	f = open(path)
 	
-	#形態素データの読み込み
-	prectxes = cmod.read_laticedata(
-						fname.replace(path_data,lat_prectx)
-					)
-	pstctxes = cmod.read_laticedata(
-						fname.replace(path_data,lat_pstctx)
-					)
-
 	X = []
-	Y = []
-	f.readline() 	#1行目を飛ばす
+	y = []
 
-	int idx = 0; #行番号
-	for line in f:
-		cols = line.strip("").split("\t")
-		if cols[0] == "x" : continue
-		Y.append(int(cols[0].strip("?")))
-		X.append([
-			extract_last_noun(prectxes[idx]),
-			extract_last_verb(pstctxes[idx])
-		idx += 1
-	f_prectx.close()
-	f_pstctx.close()
+	global vecTable
+	veclen = len(vecTable)
+	for line in open(fname):
+		cols = line.strip("\n").split("\t")
+		if len(cols) < 3: continue
+		deep = cols[0]
+		noun = cols[1]
+		verb = cols[2]
 
-	return X,Y
+		if "x" in deep or not noun or not verb:
+			continue
+		vecX = [0] * veclen
+		vecX[vecTable[noun]] = 1
+		vecX[vecTable[verb]] = 1
+
+		X.append(vecX)
+		y.append(int(deep.strip("?")))
+
+	return X,y
 
 #=== main ===
 def main():
@@ -86,21 +90,27 @@ def main():
 	#Get using file list
 	fnls = [path_data+x for x in os.listdir(path_data)
 						if os.path.isfile(path_data+x)]
-
 	#Generate list for cross-validation
 	# shapes = [validation file, [supervisors]]
 	crs_ls = []
-	print fnls
 	for fname in fnls:
 		crs_ls.append((fname,[x for x in fnls if x != fname]))
 	
+	#Generate vector table
+	gen_vector_table(fnls)
 	#Supervisor Machine Learning
-	clf = BernoulliNB()
 	for t, ls in crs_ls:
+		clf = BernoulliNB()
+		#Learning data
 		for doc in ls:
-			x, y = gen_dataset(doc)
-			clf.partial_fit(x,y)
+			X,y = gen_dataset(doc)
+			if doc == ls[0]:
+				clf.fit(X,y)
+			else:
+				clf.partial_fit(X,y)
+		testX, testy = gen_dataset(t)
+		print "Test Data:%s\t%f" % (t,clf.score(testX,testy))
 	return
 
 if __name__ == "__main__":
-		main()
+	main()
