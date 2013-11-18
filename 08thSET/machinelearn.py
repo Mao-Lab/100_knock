@@ -15,8 +15,11 @@
 #=== Import modules
 import sys
 import os
+from collections import Counter
+
 import cabochamod as cmod
 from cabochamod import WordClass as wcls
+
 
 # SML libraries
 from sklearn.naive_bayes import BernoulliNB
@@ -35,6 +38,50 @@ def dprint (str):
 # global variable(Configuration)
 path_data	= "./SMLdata/"			#元データ
 vecTable = {}		#ベクタテーブル
+testResults = [Counter() for idx in range(8)]
+testResultKeys = ["R_Class", "F_NClass",
+				  "F_Class", "R_NClass"]
+def calScore(counter):
+ 	dataNum = sum(counter.values())
+	#正解率の計算
+	accuracy = counter['R_Class'] + counter['R_NClass']
+	accuracy = float(accuracy)/dataNum
+	#精度(適合率)の計算
+	precision = float(counter["R_Class"])/(counter["R_Class"] + counter["F_NClass"])
+	#再現率の計算
+	recall = float(counter["R_Class"])/(counter["R_Class"]+counter["F_Class"])
+	#F値の計算
+	Fmeasure = 2.0 * recall * precision/(recall + precision)
+
+	return dataNum/8,accuracy, precision, recall,Fmeasure
+
+#Score
+def score(clf, fname):
+	testX, testy = gen_dataset(fname)
+	
+	results = [Counter() for idx in range(8)]
+	for X, y in zip(testX, testy):
+		ans = clf.predict(X)
+		if y == ans : r, f = 1,0
+		else : r, f = 0,1
+		print "Detail: Predict=%d Ans=%d"% (y,ans)	
+		
+		for clsNum, counter in enumerate(results):
+			if clsNum == y-1:
+				counter["R_Class"] += r
+				counter["F_Class"] += f
+			else:
+				counter["R_NClass"] += r
+				counter["F_NClass"] += f
+	
+	sumCnt= Counter()
+	for c in results:
+		sumCnt += c
+	print "TestData:%s" % fname,
+	print "%d\t%5.4f\t%5.4f\t%5.4f\t%5.4f" % calScore(sumCnt)
+
+	for c1, c2 in zip(testResults,results):
+		c1 = c1 + c2
 
 #
 def gen_vector_table(filelist):
@@ -104,12 +151,10 @@ def main():
 		#Learning data
 		for doc in ls:
 			X,y = gen_dataset(doc)
-			if doc == ls[0]:
-				clf.fit(X,y)
-			else:
-				clf.partial_fit(X,y)
-		testX, testy = gen_dataset(t)
-		print "Test Data:%s\t%f" % (t,clf.score(testX,testy))
+			if doc == ls[0]: clf.fit(X,y)
+			else: clf.partial_fit(X,y)
+		#Scoring data
+		score(clf, t)
 	return
 
 if __name__ == "__main__":
