@@ -24,10 +24,12 @@ class Morph:
 	base:原型（文字列）
 	"""
 	def __init__(self, str):
-		list = str.strip("\n").split("\t")
-		morphs = list[1].split(",")
-		
-		self.surface = list[0]
+		ls = str.strip("\n").split("\t")
+		if len(ls) < 3 :
+			ls.insert(0, " ")
+		morphs = ls[1].split(",")
+	
+		self.surface = ls[0]
 		self.pos = morphs[0]
 		self.base = morphs[6]
 		self.pos1 = morphs[1]

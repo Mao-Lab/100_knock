@@ -19,7 +19,7 @@ def read_lattice(paragraph=None):
 		lines = fileinput.input()
 	else: 
 		lines = paragraph.split("\n")
-
+	
 	for line in lines:
 		readline_lattice(sentences,line)
 	return sentences
@@ -32,7 +32,7 @@ def readline_lattice(sentences, lattice_line):
 
 	if not sentences : sentences.append([])
 	chunks = sentences[-1]
-
+	
 	if line == "EOS":
 		#係り受け元のリストを更新する
 		for i,c in enumerate(chunks):
@@ -40,11 +40,13 @@ def readline_lattice(sentences, lattice_line):
 			if c.dst > -1:
 				chunks[c.dst].srcs.append(i)
 		sentences.append([])		#空のchunkリストを追加		
-	elif line[0] == "*":
+	elif line[0] == "*" and line.find("記号") < 0:
 		chunks.append(cmod.Chunk(line))
 	else:
+		print chunks
 		chunk = chunks[-1]
 		chunk.morphs.append(cmod.mmod.Morph(line))
+	
 
 class LatticeFormatErrorException(Exception):
 	def __init__(self, lattice):

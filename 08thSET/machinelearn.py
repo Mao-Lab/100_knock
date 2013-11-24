@@ -16,6 +16,7 @@
 import sys
 import os
 from collections import Counter
+import re, pprint
 
 import cabochamod as cmod
 from cabochamod import WordClass as wcls
@@ -25,7 +26,7 @@ from cabochamod import WordClass as wcls
 from sklearn.naive_bayes import BernoulliNB
 
 #==============For Debugging===============
-_debug = True
+_debug = False
 
 if _debug:
 	print "####Running on debbugin mode####"
@@ -36,11 +37,14 @@ def dprint (str):
 #=========================================#
 
 # global variable(Configuration)
-path_data	= "./SMLdata/"			#元データ
+path_data	= "./ngram_9/data/"			#元データ
 vecTable = {}		#ベクタテーブル
 testResults = [Counter() for idx in range(8)]
 testResultKeys = ["R_Class", "F_NClass",
 				  "F_Class", "R_NClass"]
+
+
+# Defines Functions 
 def calScore(counter):
  	dataNum = sum(counter.values())
 	#正解率の計算
@@ -51,9 +55,13 @@ def calScore(counter):
 	#再現率の計算
 	recall = float(counter["R_Class"])/(counter["R_Class"]+counter["F_Class"])
 	#F値の計算
-	Fmeasure = 2.0 * recall * precision/(recall + precision)
+	Fmeasure = 0
+	if recall + precision: 
+		Fmeasure = 2.0 * recall * precision/(recall + precision)
+	else:
+		Fmeasure = -1
 
-	return dataNum/8,accuracy, precision, recall,Fmeasure
+	return accuracy, precision, recall,Fmeasure
 
 #Score
 def score(clf, fname):
@@ -75,32 +83,31 @@ def score(clf, fname):
 				counter["F_NClass"] += f
 	
 	sumCnt= Counter()
+
 	for c in results:
 		sumCnt += c
-	print "TestData:%s" % fname,
-	print "%d\t%5.4f\t%5.4f\t%5.4f\t%5.4f" % calScore(sumCnt)
-
-	for c1, c2 in zip(testResults,results):
-		c1 = c1 + c2
-
+	print "TestData:%s\t%d\t" % (fname, sum(sumCnt.values())/8),
+	print "%5.4f\t%5.4f\t%5.4f\t%5.4f" % calScore(sumCnt)
+	
+	global testResults
+	for idx in range(8):
+		testResults[idx] += results[idx]
 #
 def gen_vector_table(filelist):
 	nounSet = set()
 	verbSet = set()
 	for fname in filelist:
-		for line in open(fname):
+		fin = open(fname)
+		for line in fin:
 			cols = line.strip().split("\t")
-			if len(cols) < 2 : continue
-			if len(cols) == 3:
-				nounSet.add(cols[1])
-				verbSet.add(cols[2])
-			else:
-				nounSet.add(cols[1])
-
+			if len(cols) < 3 : continue
+			nounSet.add(cols[1].strip())
+			verbSet.add(cols[2].strip())
+			
 	global vecTable
 	for idx,word in enumerate(nounSet.union(verbSet)):
 		vecTable[word] = idx
-
+	
 	return len(vecTable)
 
 #Generate data set()
@@ -114,17 +121,17 @@ def gen_dataset(fname):
 	global vecTable
 	veclen = len(vecTable)
 	for line in open(fname):
-		cols = line.strip("\n").split("\t")
-		if len(cols) < 3: continue
-		deep = cols[0]
-		noun = cols[1]
-		verb = cols[2]
+		cols = line.strip().split("\t")
 
-		if "x" in deep or not noun or not verb:
-			continue
+		if len(cols) < 3 : continue
+		deep = cols[0]
+		phrase1 = cols[1]
+		phrase2 = cols[2]
+
+		if "x" in deep: continue
 		vecX = [0] * veclen
-		vecX[vecTable[noun]] = 1
-		vecX[vecTable[verb]] = 1
+		vecX[vecTable[phrase1]] = 1
+		vecX[vecTable[phrase2]] = 1
 
 		X.append(vecX)
 		y.append(int(deep.strip("?")))
@@ -143,6 +150,7 @@ def main():
 	for fname in fnls:
 		crs_ls.append((fname,[x for x in fnls if x != fname]))
 	
+ 	global testResults
 	#Generate vector table
 	gen_vector_table(fnls)
 	#Supervisor Machine Learning
@@ -155,6 +163,20 @@ def main():
 			else: clf.partial_fit(X,y)
 		#Scoring data
 		score(clf, t)
+	
+	#Final Result
+	#クラスごとのパラメータを見る
+	cntall = Counter()
+	print "##Each Class Results"
+	for idx,cnter in enumerate(testResults):
+		cntall += cnter
+		print "Classification_Result(%d): %d/%d" % (idx+1, cnter["F_Class"]+cnter["R_Class"],sum(cnter.values())),
+		print " %5.4f" * 4 % calScore(cnter)
+	print
+	print "##Meaning Result"
+	print sum(cntall.values())
+	print "All_Result: %d " % sum(cntall.values())/8,
+	print " %5.4" * 4 % calScore(cntall)
 	return
 
 if __name__ == "__main__":
