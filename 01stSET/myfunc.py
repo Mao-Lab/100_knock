@@ -45,54 +45,41 @@ from itertools import islice
 with open(filename) as fin:
     for line in islice(fin, headN)
 
-
-    
-f = open(argvs[1])
- N = len(lines)
-n = int(argvs[2])
-for l in range(0, min(n, N)):
-    print lines[l].strip()
-print
-
 print "Step6:最後" + argvs[2] + "行だけ表示"
-for l in range(max(N - n, 0), N):
-    print lines[l].strip()
-print
-
+tailN = int(argvs[2])
+from collections import deque
+with open(filename) as fin:
+    for line in deque(f,maxlen=tailN)
+        print line 
 
 print "Step7:1列目の文字列の種類数を数える"
-cnt = {}
-for l in lines:
-    col = l.strip().split("\t")
-    if col[0] in cnt:
-        cnt[col[0]] += 1
-    elif col[0] != "":
-        cnt[col[0]] = 1
-print len(cnt)
+wordSet = set()
+with open(filename) as fin:
+    for line in fin:
+        cols = line.strp().split("\t")
+        wordSet.add(cols[0])              
+print len(wordSet)
 
 print "Step8:2列名をkeyとして昇順にソート"
-# リストの作成を行う
-ls = []
-for l in lines:
-    col = l[:-1].split("\t")
-    if len(col) > 1:
-        ls.append(col)
-print
-ls.sort(key=lambda ls: ls[1])
-for l in ls:
-    print l
-print
+sortList = []
+with open(filename) as fin:
+    for line in fin:
+        cols = line.strip().split("\t")
+        if len(col) < 2 : continue
+        ls.append(cols)
+sortList.sort(key=lambda cols: cols[1])
+for line in sortList : print line
 
 print "Step9:2列名-1列目をkeyとして降順にソート"
-S
-ls.sort(key=lambda ls: ls[1], reverse=False)
-# key = itemgetter(1,2)でも可能か？
-for l in ls:
+for line in sorted(key=lambda cols:(cols[2],cols[1]), reverse=True):
     print l
-print
 
-print "Step10:1カラム目の出現頻度を調べ、出現頻度の高い順に並び替え、入力にはcol1.txtを用いる"
-# cntをそのまま用いてソート
-for k, v in sorted(cnt.items(), key=lambda x: x[1], reverse=True):
-    print k, v
-print
+print "Step10:1カラム目の出現頻度を調べ、出現頻度の高い順に並び替え入力にはcol1.txtを用いる"
+from collections import Counter
+wordCnt = Counter()
+with open(filename) as fin:
+    for line in fin:
+        cols = line.strp().split("\t")
+        wordCnt[cols[0]]             
+for k, v in sorted(wordCnt.items(), key=lambda cols:cols[1], reverse=True):
+    print k, v 
