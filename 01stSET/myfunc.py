@@ -1,6 +1,6 @@
 # -*- coding:UTF-8 -*-
 
- import sys
+import sys
 
 argvs = sys.argv
 argc = len(argvs)
@@ -8,7 +8,6 @@ argc = len(argvs)
 if(argc < 2):
     print "Usage: #python %s filename" % argvs[0]
     quit()
-
 
 fname = argvs[1]
 
@@ -21,6 +20,7 @@ for line in open(fname):
 print
 
 print "Step 3:Cut line1 and line2"
+with foutCol1 
 foutCol1 = open("col1.txt", "w+")
 foutCol2 = open("col2.txt", "w+")
 
@@ -33,17 +33,18 @@ for line in open(filename):
 col1.close()
 col2.close()
 
-print "Step4:Combine col1.txt and col2.txt"
-foutCol = open("col.txt", "w+")
-for col1, col2 in zip(open("col1.txt"), open("col2.txt")):
-	foutCol.write("\t".join(col1, col2))
-foutCol.close()
-
+fname1, fname2, fname3 = argvs[1:3]
+ print "Step4:Combine col1.txt and col2.txt"
+with open(fname1) as fin1, open(fname2) as fin2,
+    open(fname3,"w+") as fout:
+    for col1, col2 in zip(fin1, fin2):
+        fout.write("\t".join(col1, col2))
 print "Step5:先頭" + argvs[2] + "行だけ表示"
 headN = int(argvs[2])
 from itertools import islice
 with open(filename) as fin:
-    for line in islice(fin, headN)
+    for line in islice(fin, headN):
+        print line
 
 print "Step6:最後" + argvs[2] + "行だけ表示"
 tailN = int(argvs[2])
