@@ -33,23 +33,22 @@ for line in open(filename):
 col1.close()
 col2.close()
 
-
 print "Step4:Combine col1.txt and col2.txt"
-col1 = open("col1.txt", "r")
-col2 = open("col2.txt", "r")
-col = open("col.txt", "w+")
-
-lines = col1.readlines()
-for l in lines:
-    col.write("\t".join([l[:-1], col2.readline()])),
-print
+foutCol = open("col.txt", "w+")
+for col1, col2 in zip(open("col1.txt"), open("col2.txt")):
+	foutCol.write("\t".join(col1, col2))
+foutCol.close()
 
 print "Step5:先頭" + argvs[2] + "行だけ表示"
-f = open(argvs[1])
-lines = f.readlines()
-f.close()
+headN = int(argvs[2])
+from itertools import islice
+with open(filename) as fin:
+    for line in islice(fin, headN)
 
-N = len(lines)
+
+    
+f = open(argvs[1])
+ N = len(lines)
 n = int(argvs[2])
 for l in range(0, min(n, N)):
     print lines[l].strip()
@@ -59,6 +58,7 @@ print "Step6:最後" + argvs[2] + "行だけ表示"
 for l in range(max(N - n, 0), N):
     print lines[l].strip()
 print
+
 
 print "Step7:1列目の文字列の種類数を数える"
 cnt = {}
