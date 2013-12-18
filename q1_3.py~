@@ -1,0 +1,15 @@
+# coding: utf-8
+import sys
+
+argvs = sys.argv
+f = open(argvs[1])
+
+line = f.readline()
+line = line.split("\t")
+col1 = line[0]
+col2 = line[1]
+
+print col1
+while line:
+    line = f.readline()
+f.close
