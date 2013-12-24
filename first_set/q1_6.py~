@@ -1,0 +1,11 @@
+# coding: utf-8
+import sys
+
+argvs = sys.argv
+
+N = int(argvs[1])
+with open('address.txt') as f:
+    i = 0
+    for line in f.readline():
+        i = i + 1
+print i
