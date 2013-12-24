@@ -1,17 +1,9 @@
 # coding: utf-8
 import sys
 
-def open_txt(file_name): #readlines関数を使用して、テキストファイルを読み出し
-    f = open(file_name)
-    line = f.readlines()
-    f.close()
-    return line
+fin1 = open('col1.txt', 'r') #ファイルをオープン
+fin2 = open('col2.txt', 'r')
 
-f1 = open_txt('col1.txt') #ファイルをオープン
-f2 = open_txt('col2.txt')
-
-i = 0 #f2の要素指定のために定義
-for line in f1:
-    print line.rstrip() + '\t' + f2[i].rstrip() #各要素には\nが末尾に含まれるためそれを除去し、print
-    i = i + 1
+for lines in zip(fin1, fin2):
+    print '\t'.join(line.rstrip() for line in lines)
 
