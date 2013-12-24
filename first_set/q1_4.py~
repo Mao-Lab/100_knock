@@ -1,0 +1,30 @@
+# coding: utf-8
+import sys
+
+#argvs = sys.argv
+
+def open_txt(file_name):
+    f = open(file_name)
+    line = f.readlines()
+    f.close()
+    return line
+
+f1 = open_txt('col1.txt')
+f2 = open_txt('col2.txt')
+
+i = 0
+for line in f1:
+    print line.rstrip() + '\t' + f2[i].rstrip()
+    i = i + 1
+
+#f1 = open('col1.txt', 'r')
+#f2 = open('col2.txt', 'r')
+
+#print f2.readline().rstrip()
+#f1 = f1.readline()
+#while f1:
+#    f1 = f1.readline()
+#    print f1.readline().replace('\n', '\t') + f2.readline().replace('\n', '\t')
+
+#f1.close
+#f2.close
