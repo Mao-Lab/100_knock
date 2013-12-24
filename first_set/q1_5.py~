@@ -1,0 +1,7 @@
+# coding: utf-8
+import sys
+
+argvs = sys.argv
+
+with open('address.txt') as f:
+    print f
