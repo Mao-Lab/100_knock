@@ -2,13 +2,13 @@
 import sys
 
 argvs = sys.argv
-f = open(argvs[1])
-line = f.readline()
+fin = open(argvs[1])
+line = fin.readline()
 
-i=0
-while line:
+i=1
+for line in fin:
     i = i + 1
-    line = f.readline()
-f.close
+
+fin.close()
 
 print i,argvs[1]
