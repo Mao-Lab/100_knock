@@ -4,14 +4,14 @@ import sys
 argvs = sys.argv
 
 N = int(argvs[1])
-temp = list()
+q = list() #listをqueueとして利用
+
 with open('address.txt') as f:
-    i = 0
     line = f.readline()
     while line:
-        i = i + 1
-        temp.append(line)
         line = f.readline()
-
-    for j in range(i-N,i):
-        print temp[j],
+        q.append(line) #メモリ節約のため必要な大きさを超えるとpopする
+        if len(q) > N+1:
+            q.pop(0)
+    for j in range(N):
+        print q[j],
