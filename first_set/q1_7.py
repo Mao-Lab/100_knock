@@ -1,13 +1,18 @@
 # coding: utf-8
 import sys
 
-def open_txt(file_name):
-    f = open(file_name)
-    line = f.readlines()
-    f.close()
-    return line
+fin = open('col1.txt', 'r')
+line = fin.readline()
 
-f1 = open_txt('col1.txt')
+col1 = set() #set型を用いてuniqにする
 
-print f1[0]
-print set(f1[0].encode)
+while line:
+    col1.add(line) #すべての要素をset　col1に格納
+    line = fin.readline()
+fin.close()
+
+print len(col1)
+
+#コマンドでの確認
+#sort col1.txt | uniq | wc -l
+#1897
