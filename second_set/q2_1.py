@@ -14,7 +14,6 @@ while line:
 fin.close()
 
 #「拡散希望」を含むツイートを抽出
-for x in range(len(tl)):
-    tl[x] = tl[x].rstrip()
-    if("拡散希望" in tl[x]):
-        print tl[x]
+for line in tl:
+    if "拡散希望" in line:
+        print line.strip()
