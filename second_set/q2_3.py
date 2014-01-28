@@ -16,6 +16,6 @@ fin.close()
 #非公式RTかどうかを判断、非公式RTにはRTの前にコメントが含まれると仮定
 for x in range(len(tl)):
     tl[x] = tl[x].rstrip()
-    if(tl[x].startswith('RT') and tl[x].split('RT')[0]!=''):
+    if(tl[x].startswith('RT') and not tl[x].split('RT')[0]):
         print tl[x].split('RT')[1]
 
