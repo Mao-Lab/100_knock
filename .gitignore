@@ -1,4 +1,2 @@
-works/
-*.txt
-Sample/
-Dictionary
+*.*
+!*.py
