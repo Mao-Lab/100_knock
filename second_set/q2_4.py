@@ -18,4 +18,3 @@ for x in range(len(tl)):
     tl[x] = tl[x].lstrip('RT ')
     if('@' in tl[x]):
         print tl[x].rsplit(' ')[0].rstrip(':')
-
